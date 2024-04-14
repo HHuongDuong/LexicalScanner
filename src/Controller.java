@@ -2,6 +2,9 @@ import sun.misc.IOUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -10,33 +13,34 @@ public class Controller {
     public String input;
     public List<Token> result;
     public int CurPos;
-    String CurChar = String.valueOf(input.charAt(CurPos));
 
-    public Controller(String FilePath) {
-        Scanner scanner = null;
-        try {
-            scanner = new Scanner(new File(FilePath)).useDelimiter("\\A");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        String input = scanner.hasNext() ? scanner.next() : "";
+    public Controller(String input) {
 
         this.input = input;
         this.result = new ArrayList<>();
         this.CurPos = 0;
     }
 
+
     public List<Token> scan() {
         while (CurPos < input.length()) {
+            char CurChar = input.charAt(CurPos);
             if (LexicalScanner.isWhitespace(CurChar)) {
                 CurPos++;
             } else if (LexicalScanner.isAlaphabet(CurChar)) {
                 scanIdentifierOrKeyword();
-            } else if (LexicalScanner.isNumber(CurChar) || CurChar == ".") {
+            } else if (LexicalScanner.isNumber(CurChar) || CurChar == '.') {
                 scanLiteral();
-            } else if (CurChar == "\"") {
+            } else if (CurChar == '"') {
                 scanStringLiteral();
+            } else if (CurChar == '/') {
+                if (peekNextChar() == '/') {
+                    skipSingleLineComment();
+                } else if (peekNextChar() == '*') {
+                    skipMultiLineComment();
+                } else {
+                    scanOperator();
+                }
             } else if (LexicalScanner.isSeparator(CurChar)) {
                 scanSeparator();
             } else if (LexicalScanner.isOperator(CurChar)) {
@@ -50,8 +54,8 @@ public class Controller {
 
     public void scanIdentifierOrKeyword() {
         StringBuilder identifier = new StringBuilder();
-        while (CurPos < input.length() && LexicalScanner.isAlaphabet(CurChar)) {
-            identifier.append(CurChar);
+        while (CurPos < input.length() && LexicalScanner.isAlaphabet(input.charAt(CurPos))) {
+            identifier.append(input.charAt(CurPos));
             CurPos++;
         }
         String identifierStr = identifier.toString();
@@ -65,11 +69,11 @@ public class Controller {
     public void scanLiteral() {
         boolean temp = false;
         StringBuilder literal = new StringBuilder();
-        while (CurPos < input.length() && (LexicalScanner.isNumber(CurChar) || CurChar == ".")) {
-            if (CurChar == ".") {
+        while (CurPos < input.length() && (LexicalScanner.isNumber(input.charAt(CurPos)) || input.charAt(CurPos) == '.')) {
+            if (input.charAt(CurPos) == '.') {
                 temp = true;
             }
-            literal.append(CurChar);
+            literal.append(input.charAt(CurPos));
             CurPos++;
         }
         if (temp) {
@@ -79,22 +83,48 @@ public class Controller {
 
     public void scanStringLiteral() {
         StringBuilder literal = new StringBuilder();
-        while (CurPos < input.length() && CurChar != "\"") {
-            literal.append(CurChar);
+        while (CurPos < input.length() && input.charAt(CurPos) != '"') {
+            literal.append(input.charAt(CurPos));
             CurPos++;
         }
-        if (CurPos < input.length() && CurChar == "\"") {
+        if (CurPos < input.length() && input.charAt(CurPos) == '"') {
             CurPos++;
             result.add(new Token(LexicalScanner.Type.StrLiteral, literal.toString()));
+        } else {
+            System.out.println("Error: Missing closing double quote");
         }
     }
 
     public void scanOperator() {
+        String CurChar = String.valueOf(input.charAt(CurPos));
         result.add(new Token(LexicalScanner.Type.Operator, CurChar));
     }
 
     public void scanSeparator() {
+        String CurChar = String.valueOf(input.charAt(CurPos));
         result.add(new Token(LexicalScanner.Type.Separator, CurChar));
+    }
+
+    public char peekNextChar() {
+        if (CurPos + 1 < input.length()) {
+            return input.charAt(CurPos + 1);
+        } else {
+            return '\0'; // Null character if end of string
+        }
+    }
+
+    public void skipSingleLineComment() {
+        while (CurPos < input.length() && input.charAt(CurPos) != '\n') {
+            CurPos++;
+        }
+    }
+
+    public void skipMultiLineComment() {
+        CurPos += 2; // Skip '/*'
+        while (CurPos < input.length() - 1 && !(input.charAt(CurPos) == '*' && input.charAt(CurPos + 1) == '/')) {
+            CurPos++;
+        }
+        CurPos += 2; // Skip '*/'
     }
 }
 
