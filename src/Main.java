@@ -22,8 +22,7 @@ public class Main {
     private static String convert(String filePath) {
         StringBuilder builder = new StringBuilder();
 
-        try (BufferedReader buffer = new BufferedReader(
-                new FileReader(filePath))) {
+        try (BufferedReader buffer = new BufferedReader(new FileReader(filePath))) {
 
             String str;
 
