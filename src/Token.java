@@ -22,17 +22,4 @@ public class Token {
     public void setValue(String value) {
         this.value = value;
     }
-
-    public String toString() {
-        if(type == LexicalScanner.Type.Identifier) {
-            return "Identifier <" + value + ">";
-        }   else if(type == LexicalScanner.Type.Keyword) {
-            return "Keyword <" + value + ">";
-        }   else if (type == LexicalScanner.Type.Operator || type == LexicalScanner.Type.Seperator) {
-            return LexicalScanner.getSymbolName(value) + "<" + value + ">";
-        }   else if (type == LexicalScanner.Type.Literal) {
-
-        }
-        return "Unidentified Type";
-    }
 }

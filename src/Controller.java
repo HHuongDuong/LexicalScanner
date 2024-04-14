@@ -1,3 +1,5 @@
+import sun.misc.IOUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -5,25 +7,94 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Controller {
-    public Controller(String fileName) {
-        List<Token> result = new ArrayList<Token>();
-        Scanner scanner = null;
-        int lineNo = 0;
+    public String input;
+    public List<Token> result;
+    public int CurPos;
+    String CurChar = String.valueOf(input.charAt(CurPos));
 
+    public Controller(String FileName) {
+        Scanner scanner = null;
         try {
-            scanner = new Scanner(new File(fileName));
+            scanner = new Scanner(new File(FileName)).useDelimiter("\\A");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        while (scanner.hasNextLine()) {
-            lineNo++;
-            String line = scanner.nextLine();
-            String[] lineparts = line.split("\\s+");
-            for (String str: lineparts) {
+        String input = scanner.hasNext() ? scanner.next() : "";
 
+        this.input = input;
+        this.result = new ArrayList<>();
+        this.CurPos = 0;
+    }
+
+    public List<Token> scan() {
+        while (CurPos < input.length()) {
+            if (LexicalScanner.isWhitespace(CurChar)) {
+                CurPos++;
+            } else if (LexicalScanner.isAlaphabet(CurChar)) {
+                scanIdentifierOrKeyword();
+            } else if (LexicalScanner.isNumber(CurChar) || CurChar == ".") {
+                scanLiteral();
+            } else if (CurChar == "\"") {
+                scanStringLiteral();
+            } else if (LexicalScanner.isSeparator(CurChar)) {
+                scanSeparator();
+            } else if (LexicalScanner.isOperator(CurChar)) {
+                scanOperator();
+            } else {
+                CurPos++;
             }
+        }
+        return result;
+    }
+
+    public void scanIdentifierOrKeyword() {
+        StringBuilder identifier = new StringBuilder();
+        while (CurPos < input.length() && LexicalScanner.isAlaphabet(CurChar)) {
+            identifier.append(CurChar);
+            CurPos++;
+        }
+        String identifierStr = identifier.toString();
+        if (LexicalScanner.isKeyword(identifierStr)) {
+            result.add(new Token(LexicalScanner.Type.Keyword, identifierStr));
+        } else {
+            result.add(new Token(LexicalScanner.Type.Identifier, identifierStr));
         }
     }
 
+    public void scanLiteral() {
+        boolean temp = false;
+        StringBuilder literal = new StringBuilder();
+        while (CurPos < input.length() && (LexicalScanner.isNumber(CurChar) || CurChar == ".")) {
+            if (CurChar == ".") {
+                temp = true;
+            }
+            literal.append(CurChar);
+            CurPos++;
+        }
+        if (temp) {
+            result.add(new Token(LexicalScanner.Type.RealLiteral, literal.toString()));
+        } else result.add(new Token(LexicalScanner.Type.IntLiteral, literal.toString()));
+    }
+
+    public void scanStringLiteral() {
+        StringBuilder literal = new StringBuilder();
+        while (CurPos < input.length() && CurChar != "\"") {
+            literal.append(CurChar);
+            CurPos++;
+        }
+        if (CurPos < input.length() && CurChar == "\"") {
+            CurPos++;
+            result.add(new Token(LexicalScanner.Type.StrLiteral, literal.toString()));
+        }
+    }
+
+    public void scanOperator() {
+        result.add(new Token(LexicalScanner.Type.Operator, CurChar));
+    }
+
+    public void scanSeparator() {
+        result.add(new Token(LexicalScanner.Type.Separator, CurChar));
+    }
 }
+
