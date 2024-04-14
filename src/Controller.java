@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Controller {
     public String input;
     public List<Token> result;
@@ -15,6 +16,7 @@ public class Controller {
 
 
     public List<Token> scan() {
+        System.out.println("Scanning");
         while (CurPos < input.length()) {
             char CurChar = input.charAt(CurPos);
             if (LexicalScanner.isWhitespace(CurChar)) {
@@ -90,11 +92,13 @@ public class Controller {
     public void scanOperator() {
         String CurChar = String.valueOf(input.charAt(CurPos));
         result.add(new Token(LexicalScanner.Type.Operator, CurChar));
+        CurPos++;
     }
 
     public void scanSeparator() {
         String CurChar = String.valueOf(input.charAt(CurPos));
         result.add(new Token(LexicalScanner.Type.Separator, CurChar));
+        CurPos++;
     }
 
     public char peekNextChar() {

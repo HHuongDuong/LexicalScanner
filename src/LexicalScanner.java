@@ -1,10 +1,10 @@
 public class LexicalScanner {
-    public static final String[] KEYWORD = {"boolean ", "break", "continue", "else", "for", "float", "if", "int", "return", "void", "while"};
-    public static final String OPERATOR = "& | + - * / % = < > ! : ";
-    public static final String SEPARATOR = "[ ] { } ( ) . , ; ";
-    public static final String ALPHABET = "a b c d e f g h i j k l m n o p q r s t u v w x y z _ " +
-            "Q W E R T Y U I O P A S D F G H J K L Z X C V B N M";
-    public static final String NUMBER = " 0 1 2 3 4 5 6 7 8 9";
+    public static final String[] KEYWORD = {"boolean", "break", "continue", "else", "for", "float", "if", "int", "return", "void", "while"};
+    public static final String OPERATOR = "&|+-*/%=<>!:";
+    public static final String SEPARATOR = "[]{}().,;";
+    public static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz_" +
+            "QWERTYUIOPASDFGHJKLZXCVBNM";
+    public static final String NUMBER = "0123456789";
 
     public static boolean isWhitespace(char token) {
         // Check if the character is whitespace (space, tab, newline, carriage return).
