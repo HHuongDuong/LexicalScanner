@@ -96,15 +96,5 @@ public class Controller {
     public void scanSeparator() {
         result.add(new Token(LexicalScanner.Type.Separator, CurChar));
     }
-
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String filePath = scanner.next();
-        Controller controller = new Controller(filePath);
-        List<Token> results = controller.scan();
-        for (Token token : results) {
-            System.out.println(token);
-        }
-    }
 }
 
