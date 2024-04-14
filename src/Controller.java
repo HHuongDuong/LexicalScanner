@@ -12,10 +12,10 @@ public class Controller {
     public int CurPos;
     String CurChar = String.valueOf(input.charAt(CurPos));
 
-    public Controller(String FileName) {
+    public Controller(String FilePath) {
         Scanner scanner = null;
         try {
-            scanner = new Scanner(new File(FileName)).useDelimiter("\\A");
+            scanner = new Scanner(new File(FilePath)).useDelimiter("\\A");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -95,6 +95,16 @@ public class Controller {
 
     public void scanSeparator() {
         result.add(new Token(LexicalScanner.Type.Separator, CurChar));
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String filePath = scanner.next();
+        Controller controller = new Controller(filePath);
+        List<Token> results = controller.scan();
+        for (Token token : results) {
+            System.out.println(token);
+        }
     }
 }
 
