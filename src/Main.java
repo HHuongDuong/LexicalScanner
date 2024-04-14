@@ -2,8 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 
@@ -21,8 +19,7 @@ public class Main {
         }
     }
 
-    private static String convert(String filePath)
-    {
+    private static String convert(String filePath) {
         StringBuilder builder = new StringBuilder();
 
         try (BufferedReader buffer = new BufferedReader(
@@ -33,9 +30,13 @@ public class Main {
             while ((str = buffer.readLine()) != null) {
                 builder.append(str).append("\n");
             }
-        } catch (FileNotFoundException e) {
+        }
+
+        catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        }
+
+        catch (IOException e) {
             e.printStackTrace();
         }
 
