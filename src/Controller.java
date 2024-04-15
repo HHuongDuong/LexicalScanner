@@ -16,7 +16,7 @@ public class Controller {
 
 
     public List<Token> scan() {
-        System.out.println("Scanning");
+        System.out.println("Scanning...");
         while (CurPos < input.length()) {
             char CurChar = input.charAt(CurPos);
             if (LexicalScanner.isWhitespace(CurChar)) {

@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -13,7 +14,9 @@ public class Main {
         System.out.println("Enter input file path: ");
         String file = scanner.nextLine();
         System.out.println("You entered: " + file);
-        String input = convert(file);
+        scanner = new Scanner(Paths.get(file), StandardCharsets.UTF_8.name());
+        String input = scanner.useDelimiter("\\A").next();
+        scanner.close();
         Controller controller = new Controller(input);
         List<Token> result = controller.scan();
         for (Token token : result) {
@@ -22,7 +25,7 @@ public class Main {
     }
 
 
-    private static String convert(String filePath) {
+/*    private static String convert(String filePath) {
         StringBuilder builder = new StringBuilder();
 
         try (BufferedReader buffer = new BufferedReader(new FileReader(filePath))) {
@@ -43,6 +46,6 @@ public class Main {
         }
 
         return builder.toString();
-    }
+    }*/
 }
 
