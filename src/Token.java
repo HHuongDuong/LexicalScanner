@@ -1,4 +1,5 @@
 public class Token {
+    State.STATE state;
     LexicalScanner.Type type;
     String value;
 

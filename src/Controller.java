@@ -1,104 +1,127 @@
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Controller {
-    public String input;
-    public List<Token> result;
-    public int CurPos;
+    private Automaton automaton;
+    private List<Token> result;
+    private int CurPos;
+    private String input;
 
     public Controller(String input) {
-
-        this.input = input;
         this.result = new ArrayList<>();
+        this.automaton = new Automaton();
         this.CurPos = 0;
+        this.input = input;
     }
+    // analyze a string and add to result if valid
+    public void analyze(String input) {
+        StringBuilder lexemeBuilder = new StringBuilder();
+        State.STATE currentState = State.STATE.s0;
+        for (char c : input.toCharArray()) {
+            State.STATE nextState = automaton.exercuteTransition(currentState, c);
+            if (nextState != State.STATE.InvalidState) {
+                currentState = nextState;
+                lexemeBuilder.append(c);
+            } else {
+                // Invalid transition encountered
+                break;
+            }
+        }
 
+        State.STATE finalState = currentState;
+        State.STATE initialState = State.STATE.s0;
+        String lexeme = lexemeBuilder.toString();
 
+        // Check if the final state is valid
+        if (automaton.finalStates.containsKey(finalState)) {
+            if (LexicalScanner.isKeyword(lexeme)) {
+                //check keyword
+                result.add(new Token(LexicalScanner.Type.Keyword, lexeme));
+            } else {
+                // Get the corresponding token type
+                LexicalScanner.Type tokenType = automaton.finalStates.get(finalState);
+                result.add(new Token(tokenType, lexeme));
+            }
+        } else {
+            // If the final state is not valid, return an invalid token
+            result.add(new Token(LexicalScanner.Type.Invalid, lexeme));
+        }
+    }
+    // scan input
     public List<Token> scan() {
         System.out.println("Scanning...");
         while (CurPos < input.length()) {
             char CurChar = input.charAt(CurPos);
             if (LexicalScanner.isWhitespace(CurChar)) {
                 CurPos++;
-            } else if (LexicalScanner.isAlaphabet(CurChar)) {
-                scanIdentifierOrKeyword();
-            } else if (LexicalScanner.isNumber(CurChar) || CurChar == '.') {
-                scanLiteral();
-            } else if (CurChar == '"') {
-                scanStringLiteral();
-            } else if (CurChar == '/') {
+            }  else if (CurChar == '/') {
                 if (peekNextChar() == '/') {
                     skipSingleLineComment();
                 } else if (peekNextChar() == '*') {
                     skipMultiLineComment();
-                } else {
-                    scanOperator();
-                }
-            } else if (LexicalScanner.isSeparator(CurChar)) {
+                }   else scanOperator();
+            }  else if (LexicalScanner.isAlaphabet(CurChar)) {
+                scanIdentifierOrKeyWord();
+            }   else if (LexicalScanner.isNumber(CurChar) || CurChar == '.') {
+                scanLiteral();
+            }   else if (CurChar == '"') {
+                scanStringLiteral();
+            }   else if (LexicalScanner.isSeparator(CurChar)) {
                 scanSeparator();
-            } else if (LexicalScanner.isOperator(CurChar)) {
+            }   else if (LexicalScanner.isOperator(CurChar)) {
                 scanOperator();
-            } else {
+            }   else {
                 CurPos++;
             }
         }
         return result;
     }
-
-    public void scanIdentifierOrKeyword() {
-        StringBuilder identifier = new StringBuilder();
-        while (CurPos < input.length() && LexicalScanner.isAlaphabet(input.charAt(CurPos))) {
-            identifier.append(input.charAt(CurPos));
-            CurPos++;
-        }
-        String identifierStr = identifier.toString();
-        if (LexicalScanner.isKeyword(identifierStr)) {
-            result.add(new Token(LexicalScanner.Type.Keyword, identifierStr));
-        } else {
-            result.add(new Token(LexicalScanner.Type.Identifier, identifierStr));
-        }
-    }
-
-    public void scanLiteral() {
-        boolean temp = false;
-        StringBuilder literal = new StringBuilder();
-        while (CurPos < input.length() && (LexicalScanner.isNumber(input.charAt(CurPos)) || input.charAt(CurPos) == '.')) {
-            if (input.charAt(CurPos) == '.') {
-                temp = true;
-            }
-            literal.append(input.charAt(CurPos));
-            CurPos++;
-        }
-        if (temp) {
-            result.add(new Token(LexicalScanner.Type.RealLiteral, literal.toString()));
-        } else result.add(new Token(LexicalScanner.Type.IntLiteral, literal.toString()));
-    }
-
-    public void scanStringLiteral() {
-        StringBuilder literal = new StringBuilder();
-        while (CurPos < input.length() && input.charAt(CurPos) != '"') {
-            literal.append(input.charAt(CurPos));
-            CurPos++;
-        }
-        if (CurPos < input.length() && input.charAt(CurPos) == '"') {
-            CurPos++;
-            result.add(new Token(LexicalScanner.Type.StrLiteral, literal.toString()));
-        } else {
-            System.out.println("Error: Missing closing double quote");
-        }
-    }
-
+// ...
     public void scanOperator() {
         String CurChar = String.valueOf(input.charAt(CurPos));
-        result.add(new Token(LexicalScanner.Type.Operator, CurChar));
+        analyze(CurChar);
         CurPos++;
     }
 
     public void scanSeparator() {
         String CurChar = String.valueOf(input.charAt(CurPos));
-        result.add(new Token(LexicalScanner.Type.Separator, CurChar));
+        analyze(CurChar);
         CurPos++;
+    }
+
+    public void scanStringLiteral() {
+        StringBuilder literal = new StringBuilder();
+        literal.append(input.charAt(CurPos));
+        CurPos++;
+        while (CurPos < input.length() && input.charAt(CurPos) != '"') {
+            literal.append(input.charAt(CurPos));
+            CurPos++;
+        }
+        if (CurPos < input.length() && input.charAt(CurPos) == '"') {
+            literal.append(input.charAt(CurPos));
+            CurPos++;
+            analyze(literal.toString());
+        } else {
+            System.out.println("Error: Missing closing double quote");
+        }
+    }
+
+    public void scanLiteral() {
+        StringBuilder literal = new StringBuilder();
+        while (CurPos < input.length() && (LexicalScanner.isNumber(input.charAt(CurPos)) || input.charAt(CurPos) == '.' || input.charAt(CurPos) == 'E')) {
+            literal.append(input.charAt(CurPos));
+            CurPos++;
+        }
+        analyze(literal.toString());
+    }
+
+    public void scanIdentifierOrKeyWord() {
+        StringBuilder identifier = new StringBuilder();
+        while (CurPos < input.length() && (LexicalScanner.isAlaphabet(input.charAt(CurPos)) || LexicalScanner.isNumber(input.charAt(CurPos)))) {
+            identifier.append(input.charAt(CurPos));
+            CurPos++;
+        }
+        analyze(identifier.toString());
     }
 
     public char peekNextChar() {
@@ -123,4 +146,3 @@ public class Controller {
         CurPos += 2; // Skip '*/'
     }
 }
-

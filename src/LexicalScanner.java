@@ -6,15 +6,15 @@ public class LexicalScanner {
             "QWERTYUIOPASDFGHJKLZXCVBNM";
     public static final String NUMBER = "0123456789";
 
+    // Check if the character is whitespace (space, tab, newline, carriage return).
     public static boolean isWhitespace(char token) {
-        // Check if the character is whitespace (space, tab, newline, carriage return).
         return Character.isWhitespace(token);
     }
-
+    // Check if character is alphabet
     public static boolean isAlaphabet(char token){return ALPHABET.contains(String.valueOf(token));}
-
+    // number
     public static boolean isNumber(char token){return NUMBER.contains(String.valueOf(token));}
-
+    //keyword
     public static boolean isKeyword(String token){
         for(int i=0;i<KEYWORD.length;i++){
             if (KEYWORD[i].equals(token))
@@ -22,16 +22,16 @@ public class LexicalScanner {
         }
         return false;
     }
-
+    //sep
     public static boolean isSeparator(char token) {
         return SEPARATOR.contains(String.valueOf(token));
     }
-
+    //ope
     public static boolean isOperator(char token){
         return OPERATOR.contains(String.valueOf(token));
     }
 
-    public static enum Type {
-        Identifier, Keyword, Operator, Separator, IntLiteral, RealLiteral, StrLiteral;
+    public enum Type {
+        Identifier, Keyword, Operator, Separator, IntLiteral, RealLiteral, StrLiteral, Invalid
     }
 }
