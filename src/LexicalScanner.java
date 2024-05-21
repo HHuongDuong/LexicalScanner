@@ -32,6 +32,6 @@ public class LexicalScanner {
     }
 
     public enum Type {
-        Identifier, Keyword, Operator, Separator, IntLiteral, RealLiteral, StrLiteral, Invalid
+        Identifier, Keyword, Operator, Separator, IntLiteral, RealLiteral, StrLiteral, Invalid, EOF
     }
 }

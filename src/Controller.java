@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class Controller {
     private Automaton automaton;
@@ -13,6 +14,7 @@ public class Controller {
         this.CurPos = 0;
         this.input = input;
     }
+
     // analyze a string and add to result if valid
     public void analyze(String input) {
         StringBuilder lexemeBuilder = new StringBuilder();
@@ -46,37 +48,40 @@ public class Controller {
             // If the final state is not valid, return an invalid token
             result.add(new Token(LexicalScanner.Type.Invalid, lexeme));
         }
+
+        //...
     }
+
     // scan input
     public List<Token> scan() {
-        System.out.println("Scanning...");
+        System.out.println("Scanning...\n");
         while (CurPos < input.length()) {
             char CurChar = input.charAt(CurPos);
             if (LexicalScanner.isWhitespace(CurChar)) {
                 CurPos++;
-            }  else if (CurChar == '/') {
+            } else if (CurChar == '/') {
                 if (peekNextChar() == '/') {
                     skipSingleLineComment();
                 } else if (peekNextChar() == '*') {
                     skipMultiLineComment();
-                }   else scanOperator();
-            }  else if (LexicalScanner.isAlaphabet(CurChar)) {
+                } else scanOperator();
+            } else if (LexicalScanner.isAlaphabet(CurChar)) {
                 scanIdentifierOrKeyWord();
-            }   else if (LexicalScanner.isNumber(CurChar) || CurChar == '.') {
+            } else if (LexicalScanner.isNumber(CurChar) || CurChar == '.') {
                 scanLiteral();
-            }   else if (CurChar == '"') {
+            } else if (CurChar == '"') {
                 scanStringLiteral();
-            }   else if (LexicalScanner.isSeparator(CurChar)) {
+            } else if (LexicalScanner.isSeparator(CurChar)) {
                 scanSeparator();
-            }   else if (LexicalScanner.isOperator(CurChar)) {
+            } else if (LexicalScanner.isOperator(CurChar)) {
                 scanOperator();
-            }   else {
+            } else {
                 CurPos++;
             }
         }
         return result;
     }
-// ...
+
     public void scanOperator() {
         String CurChar = String.valueOf(input.charAt(CurPos));
         analyze(CurChar);
@@ -144,5 +149,19 @@ public class Controller {
             CurPos++;
         }
         CurPos += 2; // Skip '*/'
+    }
+
+    public Token nextToken() {
+        if (result.isEmpty()) {
+            return new Token(LexicalScanner.Type.EOF, "");
+        }
+        return result.remove(0);
+    }
+
+    public Token peekToken() {
+        if (result.isEmpty()) {
+            return new Token(LexicalScanner.Type.EOF, "");
+        }
+        return result.get(0);
     }
 }

@@ -1,7 +1,3 @@
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,48 +123,6 @@ public class Automaton {
                 return State.STATE.InvalidState;
         }
     }
-
-    public void exportToDatFile(String filePath) throws IOException {
-        try {
-            File path = new File(filePath);
-
-            FileWriter writer = new FileWriter(path);
-
-            writer.write("\nStarting State: s0\n");
-
-            writer.write("\nEnding States:\n");
-            for (Map.Entry<State.STATE, LexicalScanner.Type> entry : finalStates.entrySet()) {
-                writer.write(entry.getKey().name() + ": " + entry.getValue() + "\n");
-            }
-
-            writer.write("\nTransition Table:\n");
-            for (State.STATE state : State.STATE.values()) {
-                writer.write(state.name());
-                for (char c = 0; c <= 127; c++) {
-                    State.STATE nextState = exercuteTransition(state, c);
-                    if (nextState != State.STATE.InvalidState) {
-                        writer.write(" + " + c + " --> " + nextState.name() + "\n");
-                    }
-                }
-            }
-
-            writer.write("\nEnding States-Words Mapping:\n");
-            for (Map.Entry<State.STATE, LexicalScanner.Type> entry : finalStates.entrySet()) {
-                writer.write(entry.getKey().name() + ": " + entry.getValue() + "\n");
-            }
-
-            writer.write("\nList of acceptable Ending States:\n");
-            for (State.STATE state : finalStates.keySet()) {
-                writer.write(state.name() + "\n");
-            }
-
-            writer.flush();
-
-            writer.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    
 }
 
