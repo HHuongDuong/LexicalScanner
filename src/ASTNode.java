@@ -1,31 +1,43 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class ASTNode {
-    String value;
-    List<ASTNode> children;
+class ASTNode {
+    private String type;
+    private String value;
+    private List<ASTNode> children;
 
-    ASTNode(String value) {
+    public ASTNode(String type, String value) {
+        this.type = type;
         this.value = value;
         this.children = new ArrayList<>();
     }
 
-    void addChild(ASTNode child) {
+    public void addChild(ASTNode child) {
         children.add(child);
     }
 
-    @Override
+    public String getType() {
+        return type;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public List<ASTNode> getChildren() {
+        return children;
+    }
+
     public String toString() {
-        if (children.isEmpty()) {
-            return value;
-        } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("(").append(value);
-            for (ASTNode child : children) {
-                sb.append(" ").append(child.toString());
-            }
-            sb.append(")");
-            return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("(").append(type);
+        if (value != null) {
+            sb.append(" ").append(value);
         }
+        for (ASTNode child : children) {
+            sb.append(" ").append(child.toString());
+        }
+        sb.append(")");
+        return sb.toString();
     }
 }

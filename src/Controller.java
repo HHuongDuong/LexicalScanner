@@ -49,7 +49,6 @@ public class Controller {
             result.add(new Token(LexicalScanner.Type.Invalid, lexeme));
         }
 
-        //...
     }
 
     // scan input
@@ -163,5 +162,19 @@ public class Controller {
             return new Token(LexicalScanner.Type.EOF, "");
         }
         return result.get(0);
+    }
+
+    public Token peek2Token() {
+        if (result.isEmpty()) {
+            return new Token(LexicalScanner.Type.EOF, "");
+        }
+        return result.get(1);
+    }
+
+    public Token peek3Token() {
+        if (result.isEmpty()) {
+            return new Token(LexicalScanner.Type.EOF, "");
+        }
+        return result.get(2);
     }
 }

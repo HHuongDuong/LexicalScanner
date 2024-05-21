@@ -1,11 +1,12 @@
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ParseException {
         // input
         Scanner scanner = new Scanner(System.in);
 
@@ -30,9 +31,12 @@ public class Main {
         }
 
         // output vcps
-//        ASTNode root = parser.program();
-//        String formattedOutput = formatAST(root);
-//        System.out.println(formattedOutput);
+        try {
+            ASTNode ast = parser.parseProgram();
+            System.out.println(ast.toString());
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+        }
 
         writer.flush();
 
@@ -41,19 +45,4 @@ public class Main {
         System.out.println("File Scanned Completely");
     }
 
-    // Method to format AST with brackets
-    private static String formatAST(ASTNode node) {
-        return formatNode(node).replaceAll(" \\(", "(").replaceAll("\\) ", ")");
-    }
-
-    // Recursive method to format nodes with brackets
-    private static String formatNode(ASTNode node) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("(").append(node.value);
-        for (ASTNode child : node.children) {
-            builder.append(" ").append(formatNode(child));
-        }
-        builder.append(")");
-        return builder.toString();
-    }
 }
