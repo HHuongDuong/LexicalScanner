@@ -29,18 +29,23 @@ public class Main {
         for (Token token : result) {
             writer.write(token.getType().toString() + " " + token.getValue() + "\n");
         }
-
+        StringBuilder builder = new StringBuilder();
         // output vcps
         try {
             ASTNode ast = parser.parseProgram();
-            System.out.println(ast.toString());
+            builder.append(ast.toString());
         } catch (ParseException e) {
             System.out.println(e.getMessage());
         }
+        //output vcps
+        File vcpsPath = new File("C:\\Users\\HELLO\\Downloads\\OutputVCPSResult.vcps");
+        FileWriter fileWriter = new FileWriter(vcpsPath);
+        fileWriter.write(builder.toString());
 
         writer.flush();
-
+        fileWriter.flush();
         writer.close();
+        fileWriter.close();
 
         System.out.println("File Scanned Completely");
     }
