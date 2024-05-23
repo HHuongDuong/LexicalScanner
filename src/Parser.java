@@ -212,12 +212,12 @@ public class Parser {
         ifStmtNode.addChild(parseExpr());
         expect(LexicalScanner.Type.Separator);
         expect(LexicalScanner.Type.Separator);// {
-        ifStmtNode.addChild(parseStmt());
+        ifStmtNode.addChild(parseCompoundStmt());
         expect(LexicalScanner.Type.Separator); // }
         if (currentToken.value.equals("else")) {
             ifStmtNode.addChild(new ASTNode("ElseStmt", null));
             advance();
-            ifStmtNode.addChild(parseStmt());
+            ifStmtNode.addChild(parseCompoundStmt());
         }
         return ifStmtNode;
     }
@@ -239,7 +239,7 @@ public class Parser {
         }
         expect(LexicalScanner.Type.Separator); // )
         expect(LexicalScanner.Type.Separator); // {
-        forStmtNode.addChild(parseStmt());
+        forStmtNode.addChild(parseCompoundStmt());
         expect(LexicalScanner.Type.Separator); // }
         return forStmtNode;
     }
@@ -251,7 +251,7 @@ public class Parser {
         whileStmtNode.addChild(parseExpr());
         expect(LexicalScanner.Type.Separator); // )
         // {
-        whileStmtNode.addChild(parseStmt());
+        whileStmtNode.addChild(parseCompoundStmt());
         // }
         return whileStmtNode;
     }
@@ -282,7 +282,7 @@ public class Parser {
 
     private ASTNode parseExprStmt() throws ParseException {
         ASTNode exprStmtNode = new ASTNode("ExprStmt", null);
-        if (currentToken.getType() != LexicalScanner.Type.Separator) {
+        while (currentToken.getType() != LexicalScanner.Type.Separator) {
             exprStmtNode.addChild(parseExpr());
         }
         expect(LexicalScanner.Type.Separator); // ???
@@ -350,7 +350,7 @@ public class Parser {
         if (currentToken.type == LexicalScanner.Type.Operator &&
                 (currentToken.value.equals("+") || currentToken.value.equals("-"))) {
             ASTNode addNode = new ASTNode("AddExpr", currentToken.value);
-            advance();;
+            advance();
             return addNode;
         }
         ASTNode addExprNode = parseMulExpr();
