@@ -103,6 +103,11 @@ public class Automaton {
                     return State.STATE.s11;
                 } else return State.STATE.InvalidState;
             }
+            case s13: {
+                if (entry == '+' || entry == '-') {
+                    return State.STATE.s15;
+                } else return State.STATE.InvalidState;
+            }
             case s14:
             case s16: {
                 if (entry == '=') {

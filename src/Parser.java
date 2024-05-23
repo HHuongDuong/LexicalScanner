@@ -64,7 +64,6 @@ public class Parser {
         ASTNode funcDeclNode = new ASTNode("FuncDecl", null);
         funcDeclNode.addChild(parseType());
         funcDeclNode.addChild(new ASTNode("Identifier", currentToken.value));
-        System.out.println(currentToken.value);
         expect(LexicalScanner.Type.Identifier);
         funcDeclNode.addChild(parseParaList());
         funcDeclNode.addChild(parseCompoundStmt());
@@ -101,14 +100,12 @@ public class Parser {
 
     private ASTNode parseDeclarator() throws ParseException {
         ASTNode declaratorNode = new ASTNode("Declarator", currentToken.value);
-        System.out.println(currentToken.value);
         expect(LexicalScanner.Type.Identifier);
         if ((currentToken.type == LexicalScanner.Type.Separator) && currentToken.value.equals("[")) {
             advance();
             if (currentToken.type == LexicalScanner.Type.StrLiteral) {
                 advance();
                 declaratorNode.addChild(new ASTNode("IntLiteral", currentToken.value));
-                System.out.println(currentToken.value);
             }
             expect(LexicalScanner.Type.Separator);
         }
@@ -136,7 +133,6 @@ public class Parser {
             throw new ParseException("Expected type but found " + currentToken.type, 0);
         }
         ASTNode typeNode = new ASTNode("Type", currentToken.value);
-        System.out.println(currentToken.value);
         advance();
         return typeNode;
     }
@@ -171,7 +167,6 @@ public class Parser {
     private ASTNode parseCompoundStmt() throws ParseException {
         ASTNode compoundStmtNode = new ASTNode("CompoundStmt", null);
         expect(LexicalScanner.Type.Separator);
-        System.out.println(currentToken.value);
         while (isType(currentToken)) {
             compoundStmtNode.addChild(parseVarDecl());
         }
@@ -240,7 +235,9 @@ public class Parser {
             forStmtNode.addChild(parseExpr());
         }
         expect(LexicalScanner.Type.Separator);
+        expect(LexicalScanner.Type.Separator);
         forStmtNode.addChild(parseStmt());
+        expect(LexicalScanner.Type.Separator);
         return forStmtNode;
     }
 
@@ -296,7 +293,6 @@ public class Parser {
         if (currentToken.type == LexicalScanner.Type.Operator && currentToken.value.equals("=")) {
             advance();
             ASTNode assignNode = new ASTNode("AssignExpr", "=");
-            System.out.println(currentToken.value);
             assignNode.addChild(assignExprNode);
             assignNode.addChild(parseAssignExpr());
             return assignNode;
@@ -308,8 +304,7 @@ public class Parser {
         ASTNode orExprNode = parseAndExpr();
         while (currentToken.type == LexicalScanner.Type.Operator && currentToken.value.equals("||")) {
             advance();
-            ASTNode orNode = new ASTNode("OrExpr", "||");
-            System.out.println(currentToken.value);
+            ASTNode orNode = new ASTNode("OrExpr", "||");;
             orNode.addChild(orExprNode);
             orNode.addChild(parseAndExpr());
             orExprNode = orNode;
@@ -322,7 +317,6 @@ public class Parser {
         while (currentToken.type == LexicalScanner.Type.Operator && currentToken.value.equals("&&")) {
             advance();
             ASTNode andNode = new ASTNode("AndExpr", "&&");
-            System.out.println(currentToken.value);
             andNode.addChild(andExprNode);
             andNode.addChild(parseEqualityExpr());
             andExprNode = andNode;
@@ -336,7 +330,6 @@ public class Parser {
                 (currentToken.value.equals("==") || currentToken.value.equals("!="))) {
             advance();
             ASTNode equalityNode = new ASTNode("EqualityExpr", currentToken.value);
-            System.out.println(currentToken.value);
             equalityNode.addChild(equalityExprNode);
             equalityNode.addChild(parseRelExpr());
             equalityExprNode = equalityNode;
@@ -351,7 +344,6 @@ public class Parser {
                         currentToken.value.equals("<=") || currentToken.value.equals(">="))) {
             advance();
             ASTNode relNode = new ASTNode("RelExpr", currentToken.value);
-            System.out.println(currentToken.value);
             relNode.addChild(relExprNode);
             relNode.addChild(parseAddExpr());
             relExprNode = relNode;
@@ -365,7 +357,6 @@ public class Parser {
                 (currentToken.value.equals("+") || currentToken.value.equals("-"))) {
             advance();
             ASTNode addNode = new ASTNode("AddExpr", currentToken.value);
-            System.out.println(currentToken.value);
             addNode.addChild(addExprNode);
             addNode.addChild(parseMulExpr());
             addExprNode = addNode;
@@ -379,7 +370,6 @@ public class Parser {
                 (currentToken.value.equals("*") || currentToken.value.equals("/"))) {
             advance();
             ASTNode mulNode = new ASTNode("MulExpr", currentToken.value);
-            System.out.println(currentToken.value);
             mulNode.addChild(mulExprNode);
             mulNode.addChild(parseUnaryExpr());
             mulExprNode = mulNode;
@@ -389,9 +379,8 @@ public class Parser {
 
     private ASTNode parseUnaryExpr() throws ParseException {
         if (currentToken.type == LexicalScanner.Type.Operator &&
-                (currentToken.value.equals("+") || currentToken.value.equals("-"))) {
+                (currentToken.value.equals("++") || currentToken.value.equals("--"))) {
             ASTNode unaryNode = new ASTNode("UnaryExpr", currentToken.value);
-            System.out.println(currentToken.value);
             unaryNode.addChild(parseUnaryExpr());
             return unaryNode;
         }
@@ -401,18 +390,27 @@ public class Parser {
     private ASTNode parsePrimaryExpr() throws ParseException {
         ASTNode primaryNode;
         if (currentToken.type == LexicalScanner.Type.Identifier) {
-            advance();
-            primaryNode = new ASTNode("Identifier", currentToken.value);
-            System.out.println(currentToken.value);
-            if (currentToken.type == LexicalScanner.Type.Separator && currentToken.value.equals("(")) {
+            if (lexer.peekToken().value.equals("(") || lexer.peekToken().value.equals("[")) {
+                primaryNode = new ASTNode("Identifier", currentToken.value);
                 advance();
-                primaryNode = new ASTNode("FunctionCall", primaryNode.getValue());
-                primaryNode.addChild(parseArgList());
-            } else if (currentToken.type == LexicalScanner.Type.Separator && currentToken.value.equals("[")) {
+                if (currentToken.type == LexicalScanner.Type.Separator && currentToken.value.equals("(")) {
+                    advance();
+                    primaryNode = new ASTNode("FunctionCall", primaryNode.getValue());
+                    primaryNode.addChild(parseArgList());
+                } else if (currentToken.type == LexicalScanner.Type.Separator && currentToken.value.equals("[")) {
+                    advance();
+                    primaryNode = new ASTNode("ArrayAccess", primaryNode.getValue());
+                    primaryNode.addChild(parseExpr());
+                    expect(LexicalScanner.Type.Separator);
+                }
+            } else {
+                primaryNode = new ASTNode("Identifier", currentToken.value);
                 advance();
-                primaryNode = new ASTNode("ArrayAccess", primaryNode.getValue());
-                primaryNode.addChild(parseExpr());
-                expect(LexicalScanner.Type.Separator);
+                if (currentToken.type == LexicalScanner.Type.Operator) {
+                    primaryNode = new ASTNode(currentToken.type.toString(), currentToken.value);
+                    advance();
+                    primaryNode.addChild(parseExpr());
+                }
             }
         } else if (currentToken.type == LexicalScanner.Type.Separator && currentToken.value.equals("(")) {
             advance();
@@ -422,11 +420,10 @@ public class Parser {
         } else if (currentToken.type == LexicalScanner.Type.IntLiteral ||
                 currentToken.type == LexicalScanner.Type.RealLiteral ||
                 currentToken.type == LexicalScanner.Type.StrLiteral) {
+            primaryNode = new ASTNode(currentToken.type.toString(), currentToken.value);
             advance();
-            primaryNode = new ASTNode("Literal", currentToken.value);
-            System.out.println(currentToken.value);
         } else {
-            throw new ParseException("Unexpected token: " + currentToken, 0);
+            throw new ParseException("Unexpected token: " + currentToken.value, 0);
         }
         return primaryNode;
     }

@@ -83,6 +83,16 @@ public class Controller {
 
     public void scanOperator() {
         String CurChar = String.valueOf(input.charAt(CurPos));
+        if ((input.charAt(CurPos) == '<' || input.charAt(CurPos) == '>' || input.charAt(CurPos) == '!' || input.charAt(CurPos) == '=') && input.charAt(CurPos + 1) == '=') {
+            CurChar = CurChar + '=';
+            CurPos++;
+        } else if ((input.charAt(CurPos) == '+') && input.charAt(CurPos + 1) == '+') {
+            CurChar = CurChar + '+';
+            CurPos++;
+        } else if ((input.charAt(CurPos) == '-') && input.charAt(CurPos + 1) == '-') {
+            CurChar = CurChar + '-';
+            CurPos++;
+        }
         analyze(CurChar);
         CurPos++;
     }
