@@ -79,6 +79,7 @@ public class Parser {
         varDeclNode.addChild(parseType());
         advance();
         varDeclNode.addChild(parseInitDeclaratorList());
+        advance();
         expect(LexicalScanner.Type.Separator);
         return varDeclNode;
     }
@@ -201,7 +202,6 @@ public class Parser {
         while (!currentToken.value.equals("}")) {
             while (isType(currentToken)) {
                 compoundStmtNode.addChild(parseVarDecl());
-                advance();
             }
             while (currentToken.getType() != LexicalScanner.Type.Separator || !currentToken.value.equals("}")) {
                 compoundStmtNode.addChild(parseStmt());
