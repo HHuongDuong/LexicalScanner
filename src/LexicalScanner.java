@@ -31,6 +31,7 @@ public class LexicalScanner {
         return OPERATOR.contains(String.valueOf(token));
     }
 
+
     public enum Type {
         Identifier, Keyword, Operator, Separator, IntLiteral, RealLiteral, StrLiteral, Invalid, EOF
     }
